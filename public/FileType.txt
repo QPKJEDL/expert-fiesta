@@ -1,0 +1,20 @@
+png
+C:\Windows\php1316.tmp
+202005121004405eba043829216.png
+png
+C:\Windows\php117F.tmp
+202005121005455eba04794f265.png
+Array
+(
+    [user_id] => 4
+    [admin_kefu_id] => 8
+    [name] => 张三
+    [score] => 100000
+    [czimg] => /recharge/202005121005455eba04794f265.png
+    [status] => 0
+    [sk_name] => 黄三
+    [sk_bankname] => 中国农业银行
+    [sk_banknum] => 1111111
+    [creatime] => 1589249145
+)
+

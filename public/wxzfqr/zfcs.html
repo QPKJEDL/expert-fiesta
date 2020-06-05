@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+    <title>支付页面</title>
+    <style>
+
+        .diaod {
+            position: absolute;
+            width: 70%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 5px;
+            text-align: center;
+            padding: 20px 10px 0;
+        }
+
+
+        .diaod > span {
+            display: inline-block;
+            padding: 10px 30px;
+            background: #3668c8;
+            border-radius: 5px;
+            color: white;
+            margin: 20px 5px;
+        }
+
+         *{margin: 0;padding: 0;box-sizing: border-box;}
+        body{max-width:414px;background: #fff;font-size: 15px;margin: auto;font-family: '微软雅黑';}
+        .bg-white{background: white}
+        .center{text-align: center}
+        .left{text-align: left}
+        .fr{float: right}
+        .font12{font-size: 12px;}
+        .font20{font-size: 20px;}
+        .font36{font-size: 36px;line-height: 1;}
+        .color-gray{color: #bbb}
+        .color-blue{color: #2090e7}
+        .color-red{color: red}
+        .color-green{color:#48d345}
+        .border-t-gray{border-top: 1px solid #eee}
+        .pad-5{padding: .5rem;}
+        .pad-10{padding: 1rem;}
+        .col-8{width: 80%;margin: auto;display: block}
+        .head{background: #2090e7;padding: .5rem;color: white;position: relative;}
+        .head:before{content: '';position: absolute;width: 0;height: 0;border: .5rem solid transparent;border-top:.5rem solid #2090e7;top:99%;left:0 ;right: 0;margin: auto}
+        .btn{background: #2090e7;border-radius: 5px;padding: .5rem;color: white;margin: 10px auto;position: relative;font-size: 13px;}
+        .notice{position: absolute;top:-10px;left: 101%;white-space:nowrap;border-radius:3px;padding:5px 2px;background:red;font-size: 11px;line-height: 1;}
+        .notice:before{content: '';position: absolute;border: 5px solid transparent;border-right: 5px solid red;top:15px;left: 30%;transform: rotate(45deg)}
+        .mask{position: fixed;top:0;left: 0;width: 100%;height: 100%;background: rgba(0,0,0,.6);display: flex;justify-content: center;align-items: center}
+        .mask-box{background: white;border-radius: 5px;width: 85%;font-size: 16px}
+        .ewm{display: flex;width: 80%;margin: auto;align-items: center;}
+        .ewm div{flex:1;}
+        .ewm p{width: 20px;line-height: 1.2;color: red;}
+    </style>
+</head>
+
+<body>
+<div class=" center">
+    <img src="zfb.jpg" alt="" width="30%">
+</div>
+<div class="pad-5 center" style="border-top: .5rem solid #eee" >
+    <p class="font36">¥<span id="money"></span></p>
+    <p class="color-red">请支付 <span id="money2"></span>元，否则不到账</p>
+<!--    二维码-->
+    <div class="ewm">
+        <p>二维码只限本次使用 再次使用不到账</p>
+        <div id="url" style="display: block;margin: auto" width="100%">
+            <!-- <img id="url" src="" alt="" style="display: block;margin: auto" width="100%"> -->
+        </div>
+        <p>二维码只限本次使用  再次使用不到账</p>
+    </div>
+    <p class="color-green font12">
+        过期时间 <span id="time"></span><br>
+        过期请勿支付，不自动到账！<br>
+        修改金额不到账！
+    </p>
+    <p style="padding: .3rem 0;">订单 <span id="orderid"></span></p>
+    <div>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class=" color-red" style="font-size: 10px">
+        <b class="font12">如不能唤起支付宝 或跳转失败，请按以下步骤支付</b><br>
+        1.长按图片或截屏 把二维码保存到手机，<br>
+        2.打开支付宝 首页 >扫一扫 >右上角相册 >选择刚保存的二维码<br>
+        <b class="color-blue">如：出现风险提示 请无视点击继续 即可</b>
+    </div>
+    <p class="btn " id="codeBtn">
+<!--        <span style="color: red;font-size: large;font-weight: bold;text-shadow: 0px 0px 2px #000;">→ </span>截图图片 点这里复制账号 -->
+        启动支付宝支付
+<!--        <span class="notice">推荐使用</span>-->
+        <span style="position: fixed;left: -100%;top:-100%;" id="zfphone">2</span>
+    </p>
+</div>
+<!--<div class="center pad-5">
+    <p class="color-blue font20">请按如下示意图操作：</p>
+    <img src="./zfyd.jpg" alt="" width="80%"/>
+
+</div>——>
+
+<!--<div class="center pad-5">
+    <p>
+        <span class="color-red" style="font-size: 20px" >请不要重复扫码</span>
+    </p>
+    <p>
+        <span class="color-red" style="font-size: 20px" >请不要重复支付</span>
+    </p>
+    <p>
+        <span class="color-red" style="font-size: 20px" >请不要超时支付</span>
+    </p>
+    <p>
+        <span class="color-red" style="font-size: 20px" >不按要求操作不到账，自行承担损失</span>
+    </p>
+</div>-->
+
+
+</body>
+<div class="diaod">
+	<p style="color:red">按金额支付 别重复支付</p>
+    <h1 style="padding: 10px ">
+        <img src="./szzq1.gif" alt="" id="urls" width="100%">
+    </h1>
+</div>
+
+<div class="mask" style="display: none">
+    <div class="mask-box center">
+        <!--<p class="pad-10">
+            请 <span class="color-red">转账</span>付款 <span class="color-red" id="moneys"></span>元 <br> 付错金额的损失自己承担！
+        </p>-->
+        <p class="pad-10" style="font-size:12px">
+            <span class="color-red" style="font-size:24px">1.不要重复支付</span>，否则不到账 <br><br>
+            <span class="color-red" style="font-size:16px">2.付款金额与订单金额一致</span>，否则不到账 <br><br>
+            <span class="color-red" style="font-size:16px">3.付款成功后5分钟未到账</span>，请联系客服处理 <br><br>
+            <span class="color-red" style="font-size:16px">4.识别显示风控用另外手机直接扫！</span> <br>
+        </p>
+        <p class="pad-10 color-blue border-t-gray" id="gohide">我知道了</p>
+    </div>
+</div>
+</html>
+<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<script type="text/javascript" src="http://static.runoob.com/assets/qrcode/qrcode.min.js"></script>
+<script type="text/javascript">
+    var order_id;
+    var code_url;
+    var type;
+    var zf_phone;
+    var imgurl;
+    var locker=false;
+
+    function getQueryString(name) {
+
+        location.href.replace("#", "");
+
+        // 如果链接没有参数，或者链接中不存在我们要获取的参数，直接返回空
+        if (location.href.indexOf("?") == -1 || location.href.indexOf(name) == -1) {
+
+            return '';
+
+        }
+
+        // 获取链接中参数部分
+        order_id = location.href.substring(location.href.indexOf("?") + 10); // 分离参数对 ?key=value&key2=value2
+    }
+
+    getQueryString('order_id');
+
+    function getLocalTime(nS) {
+
+        return new Date(parseInt(nS) * 1000).toLocaleString().replace(/:\d{1,2}$/, ' ');
+
+    }
+    var qrcode = new QRCode(document.getElementById("url"), {
+
+    });
+
+
+    var iCount = setInterval('test()', 1000);
+    var home = returnCitySN["cname"];
+
+    function test() {
+
+        if(locker!=false){
+            return
+        }
+        locker=true
+        var data = {
+            order_id: order_id,
+            home: home,
+        };
+        $.ajax({
+
+            url: '/code/orderym/orderinfo',
+
+            async: true,
+
+            type: 'post',
+
+            data: data,
+
+            success: function (res) {
+                locker=false
+
+                if (order_id == "" || order_id == null || order_id < 0) {
+
+                    clearInterval(iCount);
+
+                }
+                if (res.status == 0) {
+                    clearInterval(iCount);
+                    alert(res.info);
+                }
+
+                if (res.status == 1) {
+                    $('#money').text(res.data.tradeMoney);
+                    $('#money2').text(res.data.tradeMoney);
+                    $('#moneys').text(res.data.tradeMoney);
+                    zf_phone=res.data.tradeMoney;
+                    $('#zfphone').text(zf_phone);
+                    $('#name').text(res.data.name);
+
+                    $('#time').text(getLocalTime(res.data.gptime));
+
+                    $('#orderid').text(order_id);
+
+                    // document.getElementById('url').src = res.data.erweimaurl;
+                    imgurl=res.data.erweimaurl
+                    type = res.data.type;
+                    if (type == 1) {
+                        $('#codeBtn').text('复制金额');
+                    }
+                    if (type == 2) {
+                        code_url = res.data.code_url;
+                    }
+                    console.log(res.data.zfurl + "?order_id=" + order_id);
+                    qrcode.makeCode(res.data.zfurl + "?order_id=" + order_id);
+
+                    $(".money").text(res.data.tradeMoney);
+
+                    $(".diaod").hide();
+
+                    clearInterval(iCount);
+
+                    $('.mask').show();
+                }
+
+            }
+
+        })
+
+    }
+
+    $("#gohide").click(function () {
+
+        $('.mask').hide();
+
+        $(".diaod").hide();
+
+    });
+
+
+    function copyArticle(event) {
+
+        const range = document.createRange();
+        if (type == 2) {
+            range.selectNode(document.getElementById('zfphone'));
+        }else{
+            range.selectNode(document.getElementById('money'));
+        }
+
+        const selection = window.getSelection();
+
+        if (selection.rangeCount > 0) selection.removeAllRanges();
+
+        selection.addRange(range);
+
+        document.execCommand('copy');
+
+        if (type == 2) {
+            alert(zf_phone + " 复制成功！");
+            if(code_url.indexOf("66666")!=-1){
+            	window.location.href='alipayqr://platformapi/startapp?saId=10000007&qrcode='+encodeURIComponent(code_url);
+            }else{
+            	window.location.href=code_url
+            }
+            //window.location.href=code_url
+            //window.location.href='alipayqr://platformapi/startapp?saId=10000007&qrcode='+encodeURIComponent(code_url);
+        }else{
+            alert("复制成功！");
+        }
+    }
+
+    document.getElementById('codeBtn').addEventListener('click', copyArticle, false);</script>
