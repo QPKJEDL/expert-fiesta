@@ -42,12 +42,12 @@ return [
 
 
         'mysql' => [
-            'host' => ['129.211.114.135'],
+            'host' => ['127.0.0.1'],
             'sticky'    => true,
             'driver'    => 'mysql',
             'database'  => 'huanqiu',
             'username'  => 'huanqiu',
-            'password'  => 'lcg2954926',
+            'password'  => 'lcf2954926',
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => 'hq_',
@@ -86,7 +86,7 @@ return [
 
         'default' => [
 
-            'host' => env('REDIS_HOST', '129.211.114.135'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD', 'lcf2954626'),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
