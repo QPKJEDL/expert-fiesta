@@ -47,7 +47,7 @@ return [
             'driver'    => 'mysql',
             'database'  => 'huanqiu',
             'username'  => 'huanqiu',
-            'password'  => 'lcf2954926',
+            'password'  => 'lcf2954626',
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => 'hq_',
