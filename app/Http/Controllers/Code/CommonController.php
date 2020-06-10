@@ -23,6 +23,9 @@ class CommonController extends Controller {
     }
     //验证用户信息
     public function checkLogin() {
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: token,userid,Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        header('Access-Control-Allow-Methods: POST,GET,PUT,DELETE');
         $user_id = $_SERVER['HTTP_USERID'];
         $token = $_SERVER['HTTP_TOKEN'];        
         $userInfo = Users::where(array('user_id' => $user_id))->first();
