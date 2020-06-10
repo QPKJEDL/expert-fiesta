@@ -42,7 +42,7 @@ return [
 
 
         'mysql' => [
-            'host' => ['127.0.0.1'],
+            'host' => ['129.211.114.135'],
             'sticky'    => true,
             'driver'    => 'mysql',
             'database'  => 'huanqiu',
@@ -86,7 +86,7 @@ return [
 
         'default' => [
 
-            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'host' => env('REDIS_HOST', '129.211.114.135'),
             'password' => env('REDIS_PASSWORD', 'lcf2954626'),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
