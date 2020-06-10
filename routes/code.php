@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 
 
 //登陆模块
-Route::group(['namespace'  => "Code",'middleware' => ['cors']], function () {
+Route::group(['namespace'  => "Code"], function () {
 
     /**
      * IndexController
@@ -66,7 +66,4 @@ Route::group(['namespace'  => "Code",'middleware' => ['cors']], function () {
      * UserController
      */
     Route::post('/user/is_status',                'UserController@is_status');//判断是否在线
-
-
-
 });
