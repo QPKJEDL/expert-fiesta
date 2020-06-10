@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 
 
 //登陆模块
-Route::group(['namespace'  => "Code"], function () {
+Route::group(['namespace'  => "Code",'middleware' => ['cors']], function () {
 
     /**
      * IndexController
