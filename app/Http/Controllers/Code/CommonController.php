@@ -11,6 +11,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Users;
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: Origin, Content-Type, Cookie, userid,token,X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN");
+header('Access-Control-Allow-Methods: POST,GET,PUT,DELETE,OPTIONS');
+header('Access-Control-Allow-Credentials', 'false');
+header('Access-Control-Expose-Headers', 'Authorization, authenticated');
 class CommonController extends Controller {
     protected $token = '';
     protected $uid='';
