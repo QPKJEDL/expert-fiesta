@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Middleware\EnableCrossRequestMiddleware;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 
 //登陆模块
-Route::group(['namespace'  => "Code"], function () {
+Route::group(['namespace'  => "Code"],function () {
 
     /**
      * IndexController
@@ -66,4 +67,4 @@ Route::group(['namespace'  => "Code"], function () {
      * UserController
      */
     Route::post('/user/is_status',                'UserController@is_status');//判断是否在线
-});
+})->middleware(EnableCrossRequestMiddleware::class);

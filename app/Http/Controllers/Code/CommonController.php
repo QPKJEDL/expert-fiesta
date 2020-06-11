@@ -19,11 +19,7 @@ class CommonController extends Controller {
     public $imgurl="http://192.168.1.8";
     public $kefuurl="http://192.168.1.8";
     public function __construct() {
-        header("Access-Control-Allow-Origin","*");
-        header("Access-Control-Allow-Headers", "*");
-        header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
-        ajaxReturn(null, '登录验证失败,请重新登录!', 2);
-        //$this->checkLogin();
+        $this->checkLogin();
     }
     //验证用户信息
     public function checkLogin() {
