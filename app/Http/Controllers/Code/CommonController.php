@@ -19,6 +19,9 @@ class CommonController extends Controller {
     public $imgurl="http://192.168.1.8";
     public $kefuurl="http://192.168.1.8";
     public function __construct() {
+        header('Access-Control-Allow-Origin: null');
+        header('Access-Control-Allow-Headers: *');
+        header('Access-Control-Allow-Methods: OPTIONS,POST,GET,PUT,DELETE');
         $this->checkLogin();
     }
     //验证用户信息
