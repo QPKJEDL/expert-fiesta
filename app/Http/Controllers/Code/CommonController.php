@@ -11,10 +11,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Users;
-header("Access-Control-Allow-Origin:*");
-header('Access-Control-Allow-Methods:*');
-header('Access-Control-Allow-Headers:x-requested-with, content-type');
-ajaxReturn(null, '登录验证失败,请重新登录!', 2);
 class CommonController extends Controller {
     protected $token = '';
     protected $uid='';
@@ -23,10 +19,10 @@ class CommonController extends Controller {
     public $imgurl="http://192.168.1.8";
     public $kefuurl="http://192.168.1.8";
     public function __construct() {
-        //header("Access-Control-Allow-Origin","*");
-        //header("Access-Control-Allow-Headers", "*");
-        //header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
-        //ajaxReturn(null, '登录验证失败,请重新登录!', 2);
+        header("Access-Control-Allow-Origin","*");
+        header("Access-Control-Allow-Headers", "*");
+        header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
+        ajaxReturn(null, '登录验证失败,请重新登录!', 2);
         //$this->checkLogin();
     }
     //验证用户信息
