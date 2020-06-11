@@ -15,19 +15,32 @@ class EnableCrossRequestMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $response = $next($request);
-        $origin = $request->server('HTTP_ORIGIN') ? $request->server('HTTP_ORIGIN') : '';
-        $allow_origin = [
-            'http://localhost:8900',
-        ];
-        if (in_array($origin, $allow_origin)) {
-            $response->header('Access-Control-Allow-Origin', $origin);
-            $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, userid,token,X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN');
-            $response->header('Access-Control-Expose-Headers', 'Authorization, authenticated');
-            $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
-            $response->header('Access-Control-Allow-Credentials', 'true');
-        }
+//        $response = $next($request);
+//        $origin = $request->server('HTTP_ORIGIN') ? $request->server('HTTP_ORIGIN') : '';
+//        $allow_origin = [
+//            'http://129.211.114.135:8900',
+//        ];
+//        if (in_array($origin, $allow_origin)) {
+//            $response->header('Access-Control-Allow-Origin', $origin);
+//            $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, userid,token,X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN');
+//            $response->header('Access-Control-Expose-Headers', 'Authorization, authenticated');
+//            $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
+//            $response->header('Access-Control-Allow-Credentials', 'true');
+//        }
+//
+//        return $response;
+        header('Access-Control-Allow-Origin: http://129.211.114.135:8900');
 
-        return $response;
+        header("Access-Control-Allow-Credentials: true");
+
+        header("Access-Control-Allow-Methods: GET, POST, PATCH, PUT, OPTIONS");
+
+        header("Access-Control-Allow-Headers: Origin, Content-Type, Cookie, userid,token,X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN");
+
+        header("Access-Control-Expose-Headers: *");
+
+
+
+        return $next($request);
     }
 }
