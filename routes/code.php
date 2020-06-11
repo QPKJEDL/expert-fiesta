@@ -67,4 +67,4 @@ Route::group(['namespace'  => "Code"],function () {
      * UserController
      */
     Route::post('/user/is_status',                'UserController@is_status');//判断是否在线
-})->middleware(EnableCrossRequestMiddleware::class);
+});
