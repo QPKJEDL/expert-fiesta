@@ -16,8 +16,9 @@ class EnableCrossRequestMiddleware
     public function handle($request, Closure $next)
     {
         $response = $next($request);
-
-        header('Access-Control-Allow-Origin,*' );
+        if($request->getMethod() === 'OPTIONS'){
+            header("Access-Control-Allow-Origin: *");
+        }
         return $response;
 
     }
