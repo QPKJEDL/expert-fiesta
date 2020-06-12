@@ -185,7 +185,7 @@ class MycenterController extends CommonController {
 
             $tablepfe=date('Ymd');
             $userbill =new UserBill();
-            $userbill->setTable('account_'.$tablepfe);
+            $userbill->setTable('user_billflow_'.$tablepfe);
 
             $code=time().rand(100000,999999);
             Redis::del("hq_app_draw".$user_id);
