@@ -157,7 +157,8 @@ class MycenterController extends CommonController {
                 unset($v['creatime']);
                 unset($v['savetime']);
             }
-            ajaxReturn($czrecord, "充值记录");
+            $data['list']=$czrecord;
+            ajaxReturn($data, "充值记录");
         } else {
             ajaxReturn('','请求数据异常!',0);
         }
@@ -315,7 +316,8 @@ class MycenterController extends CommonController {
                 unset($v['creatime']);
                 unset($v['endtime']);
             }
-            ajaxReturn($list,'提现记录!',1);
+            $data['list']=$list;
+            ajaxReturn($data,'提现记录!',1);
         } else {
             ajaxReturn('','请求数据异常!',0);
         }
@@ -343,7 +345,7 @@ class MycenterController extends CommonController {
             }else{
                 $where =array('user_id'=>$user_id);
             }
-            $list = $sql->where($where)->limit(5)->get();
+            $list = $sql->where($where)->limit(5)->get()->toArray();
             $sum =$sql->where('status',1)->sum('get_money');
             foreach ($list as $k=>&$v) {
                 $v['date']= date('Y-m-d',$v['creatime']);
@@ -355,8 +357,9 @@ class MycenterController extends CommonController {
                 unset($v['creatime']);
                 unset($v['paytime']);
             }
-            $list["sum"]=$sum;
-            ajaxReturn($list,'下注记录!',1);
+            $data["sum"]=$sum;
+            $data['list']=$list;
+            ajaxReturn($data,'下注记录!',1);
         } else {
             ajaxReturn('','请求数据异常!',0);
         }
