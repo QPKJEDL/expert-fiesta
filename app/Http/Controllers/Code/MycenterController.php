@@ -357,6 +357,8 @@ class MycenterController extends CommonController {
                 unset($v['creatime']);
                 unset($v['paytime']);
             }
+            $wash="10078";
+            $data["wash"]=$wash;
             $data["sum"]=$sum;
             $data['list']=$list;
             ajaxReturn($data,'下注记录!',1);
