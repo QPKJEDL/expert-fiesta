@@ -33,6 +33,14 @@ class MycenterController extends CommonController {
             if(!$is){
                 $name=Users::where("user_id",$user_id)->update(array("nickname"=>$newname));
                 if($name!==false){
+                    $k="UserInfo_".$user_id;
+                    $old=Redis::get($k);
+                    $data=json_decode($old,true);
+                    $data["NickName"]=$newname;
+
+                    $new=json_encode($data);
+                    Redis::set($k,$new);
+
                     ajaxReturn('','修改成功!',1);
                 }else{
                     ajaxReturn('','昵称不可重复!',0);
