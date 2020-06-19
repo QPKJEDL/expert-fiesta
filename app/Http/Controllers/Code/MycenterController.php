@@ -37,7 +37,6 @@ class MycenterController extends CommonController {
                     $old=Redis::get($k);
                     $data=json_decode($old,true);
                     $data["NickName"]=$newname;
-
                     $new=json_encode($data);
                     Redis::set($k,$new);
 
