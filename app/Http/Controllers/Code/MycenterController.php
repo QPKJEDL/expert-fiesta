@@ -25,6 +25,7 @@ class MycenterController extends CommonController {
     /*
      * 昵称修改
      */
+
     public function change_nickname(Request $request){
         if($request->isMethod('post')) {
             $user_id = $this->uid;
