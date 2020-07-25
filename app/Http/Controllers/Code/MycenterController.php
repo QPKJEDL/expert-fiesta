@@ -145,18 +145,15 @@ class MycenterController extends CommonController {
     public function recharge_list(Request $request){
         if($request->isMethod('post')) {
             $user_id = $this->uid;
-            $lastid = $request->input('lastid');
+            $page = $request->input('page');
             $date=$request->input('date');
 
             $start=strtotime($date);
             $end=$start+86400-1;
 
-            if($lastid){
-                $where =[['user_id',$user_id],['id','<',$lastid]];
-            }else{
-                $where =array('user_id'=>$user_id);
-            }
-            $czrecord=Czrecord::where($where)->whereBetween('creatime',[$start,$end])->orderBy('creatime','desc')->limit(5)->get();
+            $begin=($page-1)*5;
+
+            $czrecord=Czrecord::where("user_id",$user_id)->offset($begin)->limit(5)->whereBetween('creatime',[$start,$end])->orderBy('creatime','desc')->get();
             foreach ($czrecord as &$v) {
                 $v['date']= date('Y-m-d',$v['creatime']);
                 $v['time']= date('H:i:s',$v['creatime']);
@@ -165,6 +162,7 @@ class MycenterController extends CommonController {
                 unset($v['savetime']);
             }
             $data['list']=$czrecord;
+            $data['page']=$page;
             ajaxReturn($data, "充值记录");
         } else {
             ajaxReturn('','请求数据异常!',0);
@@ -303,18 +301,15 @@ class MycenterController extends CommonController {
     public function withdraw_list(Request $request) {
         if($request->isMethod('post')) {
             $user_id = $this->uid;
-            $lastid = $request->input('lastid');
+            $page = $request->input('page');
             $date=$request->input('date');
 
             $start=strtotime($date);
             $end=$start+86400-1;
 
-            if($lastid){
-                $where =[['user_id',$user_id],['id','<',$lastid]];
-            }else{
-                $where =array('user_id'=>$user_id);
-            }
-            $list = Withdraw::where($where)->whereBetween('creatime',[$start,$end])->orderBy('id','desc')->limit(5)->get();
+            $begin=($page-1)*5;
+
+            $list = Withdraw::where("user_id",$user_id)->offset($begin)->limit(5)->whereBetween('creatime',[$start,$end])->orderBy('id','desc')->get();
             foreach ($list as $k=>&$v) {
                 $v['money']=$v['money']/100;
                 $v['date']= date('Y-m-d',$v['creatime']);
@@ -324,6 +319,7 @@ class MycenterController extends CommonController {
                 unset($v['endtime']);
             }
             $data['list']=$list;
+            $data['page']=$page;
             ajaxReturn($data,'提现记录!',1);
         } else {
             ajaxReturn('','请求数据异常!',0);
@@ -337,7 +333,7 @@ class MycenterController extends CommonController {
     public function bet_list(Request $request){
         if($request->isMethod('post')) {
             $user_id = $this->uid;
-            $lastid = $request->input('lastid');
+            $page = $request->input('page');
             $date=$request->input('date');
 
             $time = strtotime($date);
@@ -347,13 +343,8 @@ class MycenterController extends CommonController {
             $order->setTable('order_'.$weeksuf);
             $sql=$order->orderBy('creatime','desc');
 
-            if($lastid){
-                $where =[['user_id',$user_id],['id','<',$lastid]];
-            }else{
-                $where =array('user_id'=>$user_id);
-            }
-            $list = $sql->where($where)->limit(5)->get()->toArray();
-            $sum =$sql->where('status',1)->sum('get_money');
+            $start=($page-1)*5;
+            $list = $sql->where("user_id",$user_id)->offset($start)->limit(5)->get()->toArray();
             foreach ($list as $k=>&$v) {
                 $v['date']= date('Y-m-d',$v['creatime']);
                 $v['time']= date('H:i:s',$v['creatime']);
@@ -364,10 +355,13 @@ class MycenterController extends CommonController {
                 unset($v['creatime']);
                 unset($v['paytime']);
             }
-            $wash="10078";
+            $sum =$order->where(array("user_id"=>$user_id,"status"=>1))->sum('get_money');//今日总输赢
+            $all=$order->where("user_id",$user_id)->get();//今日总洗码
+            $wash=$this->getSumCode($all);
             $data["wash"]=$wash;
             $data["sum"]=$sum;
             $data['list']=$list;
+            $data['page']=$page;
             ajaxReturn($data,'下注记录!',1);
         } else {
             ajaxReturn('','请求数据异常!',0);
@@ -396,6 +390,7 @@ class MycenterController extends CommonController {
             ajaxReturn($data,'版本更新',1);
         }
     }
+
 
 
     /**
@@ -433,6 +428,133 @@ class MycenterController extends CommonController {
         }
 
     }
+    /**
+     * 获取总洗码
+     * @param $data
+     * @return float|int|mixed
+     */
+    public function getSumCode($data){
+        $money = 0;
+        foreach ($data as $key=>$datum){
+            if ($datum->status==1){
+                if ($datum->game_type==1){
+                    $jsonArr = json_decode($datum->bet_money,true);
+                    $money = $money + array_sum($jsonArr);
+                }else if($datum->game_type==2){
+                    $jsonArr = json_decode($datum->bet_money,true);
+                    $money = $money + array_sum($jsonArr);
+                }else if ($datum->game_type==3){
+                    $jsonArr = json_decode($datum->bet_money,true);
+                    if (!empty($jsonArr['x1_Super_Double'])){
+                        $money = $money + $jsonArr['x1_Super_Double'] *10;
+                    }
+                    if (!empty($jsonArr['x2_Super_Double'])){
+                        $money = $money + $jsonArr['x2_Super_Double'] *10;
+                    }
+                    if (!empty($jsonArr['x3_Super_Double'])){
+                        $money = $money + $jsonArr['x3_Super_Double'] *10;
+                    }
+                    if (!empty($jsonArr['x1_double'])){
+                        $money = $money + $jsonArr['x1_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x2_double'])){
+                        $money = $money + $jsonArr['x2_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x3_double'])){
+                        $money = $money + $jsonArr['x3_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x1_equal'])){
+                        $money = $money = $jsonArr['x1_equal'];
+                    }
+                    if (!empty($jsonArr['x2_equal'])){
+                        $money = $money + $jsonArr['x2_equal'];
+                    }
+                    if (!empty($jsonArr['x3_equal'])){
+                        $money = $money + $jsonArr['x3_equal'];
+                    }
+                }else if($datum->game_type==4){
+                    $jsonArr = json_decode($datum->bet_money,true);
+                    if (!empty($jsonArr['x1_Super_Double'])){
+                        $money=$money + $jsonArr['x1_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x2_Super_Double'])){
+                        $money=$money + $jsonArr['x2_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x3_Super_Double'])){
+                        $money=$money + $jsonArr['x3_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x4_Super_Double'])){
+                        $money=$money + $jsonArr['x4_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x5_Super_Double'])){
+                        $money=$money + $jsonArr['x5_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x6_Super_Double'])){
+                        $money=$money + $jsonArr['x6_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['x1_double'])){
+                        $money = $money + $jsonArr['x1_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x2_double'])){
+                        $money = $money + $jsonArr['x2_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x3_double'])){
+                        $money = $money + $jsonArr['x3_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x4_double'])){
+                        $money = $money + $jsonArr['x4_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x5_double'])){
+                        $money = $money + $jsonArr['x5_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x6_double'])){
+                        $money = $money + $jsonArr['x6_double'] * 3;
+                    }
+                    if (!empty($jsonArr['x1_equal'])){
+                        $money = $money + $jsonArr['x1_equal'];
+                    }
+                    if (!empty($jsonArr['x2_equal'])){
+                        $money = $money + $jsonArr['x2_equal'];
+                    }
+                    if (!empty($jsonArr['x3_equal'])){
+                        $money = $money + $jsonArr['x3_equal'];
+                    }
+                    if (!empty($jsonArr['x4_equal'])){
+                        $money = $money + $jsonArr['x4_equal'];
+                    }
+                    if (!empty($jsonArr['x5_equal'])){
+                        $money = $money + $jsonArr['x5_equal'];
+                    }
+                    if (!empty($jsonArr['x6_equal'])){
+                        $money = $money + $jsonArr['x6_equal'];
+                    }
+                }else if($datum->game_type==5){
+                    $jsonArr = json_decode($datum->bet_money,true);
+                    if (!empty($jsonArr['ShunMen_Super_Double'])){
+                        $money = $money + $jsonArr['ShunMen_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['TianMen_Super_Double'])){
+                        $money = $money + $jsonArr['TianMen_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['FanMen_Super_Double'])){
+                        $money = $money + $jsonArr['FanMen_Super_Double'] * 10;
+                    }
+                    if (!empty($jsonArr['ShunMen_equal'])){
+                        $money = $money + $jsonArr['ShunMen_equal'];
+                    }
+                    if (!empty($jsonArr['TianMen_equal'])){
+                        $money = $money + $jsonArr['TianMen_equal'];
+                    }
+                    if (!empty($jsonArr['FanMen_equal'])){
+                        $money = $money + $jsonArr['FanMen_equal'];
+                    }
+                }
+            }
+        }
+        return $money;
+    }
+
+
 
 
     /**生成随机码
