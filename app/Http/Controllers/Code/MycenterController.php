@@ -290,7 +290,7 @@ class MycenterController extends CommonController {
                 DB::commit();
                 Redis::del("hq_app_draw".$user_id);
                 $data["balance"]=$after;
-                ajaxReturn($data,'申请成功!',0);
+                ajaxReturn($data,'申请成功!');
             }catch (Exception $e){
                 DB::rollBack();
                 Redis::del("hq_app_draw".$user_id);
