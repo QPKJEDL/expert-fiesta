@@ -176,7 +176,7 @@ class MycenterController extends CommonController {
 
         if($request->isMethod('post')) {
             $user_id = $this->uid;
-            $draw_name = htmlformat($_POST['draw_name']); //姓名
+            $draw_name = htmlformat($_POST['draw_name']); //提现申请人姓名
             $bank_name = htmlformat($_POST['bank_name']);// 收款银行名称
             $bank_card = htmlformat($_POST['bank_card']); //收款银行卡号
             $draw_money = $_POST['draw_money'];//金额
