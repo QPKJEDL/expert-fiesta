@@ -177,9 +177,9 @@ class MycenterController extends CommonController {
         if($request->isMethod('post')) {
             $user_id = $this->uid;
             $draw_name = htmlformat($_POST['draw_name']); //姓名
-            $draw_money = $_POST['draw_money'];//金额
             $bank_name = htmlformat($_POST['bank_name']);// 收款银行名称
             $bank_card = htmlformat($_POST['bank_card']); //收款银行卡号
+            $draw_money = $_POST['draw_money'];//金额
             $draw_pwd=htmlformat($_POST['draw_pwd']); //提现密码
 
             $min=Redis::get("hq_admin_draw_min");
@@ -228,20 +228,26 @@ class MycenterController extends CommonController {
             }
 
             $score=$draw_money*100;
-            $count=Withdraw::where(array("user_id"=>$user_id,"status"=>1))->whereBetween('creatime',[$start,$end])->count();
+            $count=Withdraw::where(array("user_id"=>$user_id))->whereBetween('creatime',[$start,$end])->count();
             if($count==0){
                 $tradeMoney=$score;
             }else if($count>=1){
-                $tradeMoney = $draw_money - $draw_money*$fee/100; //到账金额
+                $tradeMoney = $score - $score*$fee/100; //到账金额
             }
             DB::beginTransaction();
             try{
-                $before=UserAccount::where("user_id",$user_id)->value("balance");
+                $before=UserAccount::where("user_id",$user_id)->lockForUpdate()->value("balance");
+                if($before < $score) {
+                    DB::rollBack();
+                    Redis::del("hq_app_draw".$user_id);
+                    ajaxReturn('','余额不足!',0);
+                }
+
                 $balance=UserAccount::where("user_id",$user_id)->decrement('balance',$score);
                 if(!$balance){
                     DB::rollBack();
                     Redis::del("hq_app_draw".$user_id);
-                    return ['msg'=>'提现失败！','status'=>0];
+                    ajaxReturn('','提现失败!',0);
                 }
                 $after=UserAccount::where("user_id",$user_id)->value("balance");
                 $order_sn=getrequestId();
@@ -261,7 +267,7 @@ class MycenterController extends CommonController {
                 if(!$with_draw){
                     DB::rollBack();
                     Redis::del("hq_app_draw".$user_id);
-                    return ['msg'=>'申请失败！','status'=>0];
+                    ajaxReturn('','申请失败!',0);
                 }
 
                 $bill=[
@@ -279,15 +285,16 @@ class MycenterController extends CommonController {
                 if(!$insert){
                     DB::rollBack();
                     Redis::del("hq_app_draw".$user_id);
-                    return ['msg'=>'流水更新失败！','status'=>0];
+                    ajaxReturn('','流水更新失败!',0);
                 }
                 DB::commit();
                 Redis::del("hq_app_draw".$user_id);
-                return ['msg'=>'申请成功！','status'=>1];
+                $data["balance"]=$after;
+                ajaxReturn($data,'申请成功!',0);
             }catch (Exception $e){
                 DB::rollBack();
                 Redis::del("hq_app_draw".$user_id);
-                return ['msg'=>'数据异常！','status'=>0];
+                ajaxReturn('','数据异常!',0);
             }
 
         } else {
