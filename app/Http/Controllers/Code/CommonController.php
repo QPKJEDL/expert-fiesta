@@ -34,9 +34,9 @@ class CommonController extends Controller {
         $data=json_decode($old,true);
 
         $userInfo = Users::where(array('user_id' => $user_id))->first();
-        if(!$userInfo) {
-            ajaxReturn(null, '用户不存在!', 2);
-        }
+//        if(!$userInfo) {
+//            ajaxReturn(null, '用户不存在!', 2);
+//        }
         if ($userInfo['is_over'] == 1){
             ajaxReturn(null,'此账号已被封禁!',2);
         }
