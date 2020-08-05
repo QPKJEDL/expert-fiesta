@@ -27,7 +27,12 @@ class CommonController extends Controller {
     //验证用户信息
     public function checkLogin() {
         $user_id = $_SERVER['HTTP_USERID'];
-        $token = $_SERVER['HTTP_TOKEN'];        
+        $token = $_SERVER['HTTP_TOKEN'];
+
+        $k="UserInfo_".$user_id;
+        $old=Redis::get($k);
+        $data=json_decode($old,true);
+
         $userInfo = Users::where(array('user_id' => $user_id))->first();
         if(!$userInfo) {
             ajaxReturn(null, '用户不存在!', 2);
@@ -39,7 +44,7 @@ class CommonController extends Controller {
             ajaxReturn(null, '登录失效,请重新登录!', 2);
         }
 
-        if ($userInfo['token'] === $token) {
+        if ($data['Token'] === $token) {
             $this->uid = $user_id;
             $this->member = $userInfo;
             return;
