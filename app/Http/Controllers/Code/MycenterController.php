@@ -168,7 +168,145 @@ class MycenterController extends CommonController {
             ajaxReturn('','请求数据异常!',0);
         }
     }
-    
+
+    /*
+     * 获取银行卡信息 判断是否需要绑定
+     */
+    public function getBankInfo(Request $request){
+        if($request->isMethod('post')) {
+            $user_id = $this->uid;
+            $bank=Users::where("user_id",'=',$user_id)->select("bank_card","draw_name","bank_name","bank_addr")->first();
+            if(empty($bank["draw_name"])){
+                ajaxReturn('','请绑定银行卡!',3);
+            }
+            $balance=UserAccount::where("user_id",$user_id)->value("balance");
+            $data=[
+                "balance"=>$balance,
+                "draw_name"=>$bank["draw_name"],
+                "bank_card"=>$bank["bank_card"],
+            ];
+            ajaxReturn($data, "银行卡信息");
+        }else{
+            ajaxReturn('','请求数据异常!',0);
+        }
+    }
+    /*
+     * 第一次绑定银行卡信息
+     */
+    public function firstBind(Request $request){
+        if($request->isMethod('post')) {
+            $user_id = $this->uid;
+            $draw_name = htmlformat($_POST['draw_name']);   //开户人
+            $bank_name = htmlformat($_POST['bank_name']);   //银行名字
+            $bank_card = (int)$_POST['bank_card'];          //银行卡号
+            $bank_addr = htmlformat($_POST['bank_addr']);   //支行信息
+            $draw_pwd1 = (int)($_POST['draw_pwd1']);     //提现密码
+            $draw_pwd2 = (int)($_POST['draw_pwd2']);     //确认提现密码
+
+            if(empty($draw_name)||empty($bank_name)||empty($bank_card)||empty($bank_addr)||empty($draw_pwd1)||empty($draw_pwd2)){
+                ajaxReturn('','参数错误!',0);
+            }
+
+            if($draw_pwd1!=$draw_pwd2){
+                ajaxReturn('','支付密码不一致!',0);
+            }
+
+            $data=[
+                "draw_name"=>$draw_name,
+                "bank_name"=>$bank_name,
+                "bank_card"=>$bank_card,
+                "bank_addr"=>$bank_addr,
+                "draw_pwd"=>md5($draw_pwd2),
+            ];
+
+            $upbank=Users::where("user_id",'=',$user_id)->update($data);
+            if($upbank){
+                ajaxReturn('', "绑定成功!");
+            }else{
+                ajaxReturn('','绑定失败!',0);
+            }
+
+        }else{
+            ajaxReturn('','请求数据异常!',0);
+        }
+    }
+    /*
+     * 修改银行卡信息
+     */
+    public function updateBank(Request $request){
+        if($request->isMethod('post')) {
+            $user_id = $this->uid;
+            $bank_name = htmlformat($_POST['bank_name']);   //银行名字
+            $bank_card = (int)$_POST['bank_card'];          //银行卡号
+            $bank_addr = htmlformat($_POST['bank_addr']);   //支行信息
+
+            if(empty($bank_name)||empty($bank_card)||empty($bank_addr)){
+                ajaxReturn('','参数错误!',0);
+            }
+
+            $data=[
+                "bank_name"=>$bank_name,
+                "bank_card"=>$bank_card,
+                "bank_addr"=>$bank_addr,
+            ];
+
+            $upbank=Users::where("user_id",'=',$user_id)->update($data);
+
+            if($upbank!==false){
+                ajaxReturn($data, "修改成功!");
+            }else{
+                ajaxReturn('','修改失败!',0);
+            }
+
+        }else{
+            ajaxReturn('','请求数据异常!',0);
+        }
+    }
+    /*
+     * 修改提现密码
+     */
+    public function updateDrawPwd(Request $request){
+        if($request->isMethod('post')) {
+            $user_id = $this->uid;
+            $logpwd = $_POST['log_pwd'];   //银行名字
+            $bank_card = (int)$_POST['bank_card'];//银行卡号
+            $draw_pwd1 = (int)($_POST['draw_pwd1']);     //提现密码
+            $draw_pwd2 = (int)($_POST['draw_pwd2']);     //确认提现密码
+
+            if(empty($logpwd)||empty($bank_card)||empty($draw_pwd1)||empty($draw_pwd2)){
+                ajaxReturn('','参数错误!',0);
+            }
+
+            $user=Users::where("user_id","=",$user_id)->first();
+
+            if(md5($logpwd)!=$user["password"]){
+                ajaxReturn('','登录密码错误!',0);
+            }
+
+            if($bank_card!=$user["bank_card"]){
+                ajaxReturn('','银行卡号有误!',0);
+            }
+
+            if($draw_pwd1!=$draw_pwd2){
+                ajaxReturn('','支付密码不一致!',0);
+            }
+
+            $updateDraw=Users::where("user_id","=",$user_id)->update(array("draw_pwd"=>md5($draw_pwd2)));
+            if($updateDraw){
+                ajaxReturn('','修改成功!');
+            }else{
+                ajaxReturn('','修改失败!');
+            }
+
+
+        }else{
+            ajaxReturn('','请求数据异常!',0);
+        }
+    }
+
+
+
+
     /*
    * 提现申请
    */
@@ -177,17 +315,9 @@ class MycenterController extends CommonController {
         if($request->isMethod('post')) {
             $user_id = $this->uid;
             $draw_name = htmlformat($_POST['draw_name']); //提现申请人姓名
-            $bank_name = htmlformat($_POST['bank_name']);// 收款银行名称
             $bank_card = htmlformat($_POST['bank_card']); //收款银行卡号
             $draw_money = $_POST['draw_money'];//金额
             $draw_pwd=htmlformat($_POST['draw_pwd']); //提现密码
-
-            $min=Redis::get("hq_admin_draw_min");
-            $max=Redis::get("hq_admin_draw_max");
-            $fee=Redis::get("hq_admin_draw_fee");
-
-            $start=strtotime(date('Ymd'));
-            $end=strtotime("+1day",$start)-1;
 
             $tablepfe=date('Ymd');
             $userbill =new UserBill();
@@ -208,11 +338,11 @@ class MycenterController extends CommonController {
                 Redis::del("hq_app_draw".$user_id);
                 ajaxReturn(null, "提现金额不能小于0！",0);
             }
-            if ($draw_money<$min ||$draw_money>$max){
+            if ($draw_money<100){
                 Redis::del("hq_app_draw".$user_id);
-                ajaxReturn(null, "提现金额不能小于100或大于5000！",0);
+                ajaxReturn(null, "提现金额不能小于100",0);
             }
-            if (empty($draw_name)  ||  empty($draw_money) ||empty($bank_name) || empty($bank_card)||empty($draw_pwd) ){
+            if (empty($draw_name) ||  empty($draw_money) || empty($bank_card)||empty($draw_pwd) ){
                 Redis::del("hq_app_draw".$user_id);
                 ajaxReturn(null, "数据信息异常！",0);
             }
@@ -221,19 +351,15 @@ class MycenterController extends CommonController {
                 Redis::del("hq_app_draw".$user_id);
                 ajaxReturn(null, "提现密码不对！",0);
             }
-            $is=Users::where(array("user_id"=>$user_id,"draw_name"=>$draw_name,"bank_name"=>$bank_name,"bank_card"=>$bank_card))->first();
-            if(!$is){
+            $userinfo=Users::where(array("user_id"=>$user_id,"draw_name"=>$draw_name,"bank_card"=>$bank_card))->first();
+            if(!$userinfo){
                 Redis::del("hq_app_draw".$user_id);
                 ajaxReturn(null, "银行卡信息有误！",0);
             }
 
             $score=$draw_money*100;
-            $count=Withdraw::where(array("user_id"=>$user_id))->whereBetween('creatime',[$start,$end])->count();
-            if($count==0){
-                $tradeMoney=$score;
-            }else if($count>=1){
-                $tradeMoney = $score - $score*$fee/100; //到账金额
-            }
+            $tradeMoney=$score;
+
             DB::beginTransaction();
             try{
                 $before=UserAccount::where("user_id",$user_id)->lockForUpdate()->value("balance");
@@ -256,8 +382,10 @@ class MycenterController extends CommonController {
                     "order_sn"=>$order_sn,
                     "money"=>$score,
                     "tradeMoney"=>$tradeMoney,
+                    "bet_before"=>$before,
+                    "bet_after"=>$after,
                     "draw_name"=>$draw_name,
-                    "bank_name"=>$bank_name,
+                    "bank_name"=>$userinfo["bank_name"],
                     "bank_card"=>$bank_card,
                     "status"=>0,
                     "remark"=>"用户提现申请",
